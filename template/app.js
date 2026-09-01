@@ -56,9 +56,12 @@ function boardTable(rows) {
 }
 
 function renderBoard(tickers) {
-  const mid = Math.ceil(tickers.length / 2);
-  document.getElementById("board-col-1").innerHTML = boardTable(tickers.slice(0, mid));
-  document.getElementById("board-col-2").innerHTML = boardTable(tickers.slice(mid));
+  const colCount = 3;
+  const perCol = Math.ceil(tickers.length / colCount);
+  for (let i = 0; i < colCount; i++) {
+    const col = tickers.slice(i * perCol, (i + 1) * perCol);
+    document.getElementById(`board-col-${i + 1}`).innerHTML = boardTable(col);
+  }
 }
 
 function renderSnapshotStrip(items) {
