@@ -1,7 +1,5 @@
 # PRD: GabboTV
 
-> Instrucciones de uso: copia este archivo por cada feature nuevo, complétalo, y pégalo como primer mensaje a Claude Code o Copilot Chat antes de pedir código. Si algo no aplica, bórralo — un PRD corto y preciso funciona mejor que uno largo con secciones vacías.
-
 ## 1. Objetivo
 
 Application to report on a TV or monitor screen market alerts with professional broadcast services standards (e.g. Bloomberg or MSNBC)
@@ -30,24 +28,17 @@ Application to report on a TV or monitor screen market alerts with professional 
 
 ## 5. Fuera de alcance
 
-Qué explícitamente NO debe tocar, cambiar, o incluir:
-
 - start from scratch but you can re-use code from a similar app already described
 
 ## 6. Criterios de éxito / Definición de "listo"
 
-Cómo sabés que el resultado funcionó:
 
-- [ ] excelent visual presentation at a professional broadcast level.
+- [ ] excellent visual presentation at a professional broadcast level.
 
 ## 7. Datos de ejemplo / casos de prueba (opcional)
 
-```
 ![alt text](image.png)
-```
-
----
 
 ### Prompt sugerido para pegar junto con este PRD:
 
-> Antes de escribir código, proponeme un plan de implementación basado en este PRD (archivos a crear/modificar, decisiones de arquitectura clave). Esperá mi confirmación antes de tocar código.
+> Before writing any code, propose an implementation plan based on this PRD (files to create/modify, key architecture decisions). Wait for my confirmation before touching any code.

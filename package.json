@@ -1,0 +1,16 @@
+{
+  "name": "gabbotv",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local market-alert data feed for CasparCG/SPX broadcast graphics",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}
