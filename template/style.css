@@ -1,0 +1,123 @@
+:root {
+  --bg-dark: #05070d;
+  --bg-panel: #0b1020;
+  --line: #1c2438;
+  --red: #e11d2e;
+  --gold: #d4af37;
+  --green: #1fbf5c;
+  --white: #f5f6fa;
+  --grey: #8a90a3;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 1920px;
+  height: 1080px;
+  background: var(--bg-dark);
+  color: var(--white);
+  font-family: "Segoe UI", Arial, sans-serif;
+  overflow: hidden;
+}
+
+.broadcast { display: flex; flex-direction: column; width: 100%; height: 100%; }
+
+/* Header */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 96px;
+  padding: 0 40px;
+  flex: 0 0 auto;
+  background: linear-gradient(90deg, #000 0%, #1a0000 65%, var(--red) 100%);
+  border-bottom: 4px solid var(--red);
+}
+.brand-mark { font-weight: 800; font-size: 38px; letter-spacing: 2px; }
+.brand-tv { color: var(--red); font-weight: 800; font-size: 38px; }
+.title { font-size: 32px; font-weight: 700; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; }
+.status { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.badge { padding: 6px 16px; border-radius: 4px; font-weight: 700; letter-spacing: 2px; font-size: 15px; }
+.badge--open { background: var(--green); color: #02170a; }
+.badge--closed { background: #3a3f4d; color: var(--grey); }
+.updated { font-size: 14px; color: var(--grey); font-variant-numeric: tabular-nums; }
+
+/* Market snapshot strip */
+.snapshot-strip {
+  display: flex;
+  flex: 0 0 auto;
+  height: 90px;
+  background: var(--bg-panel);
+  border-bottom: 2px solid var(--line);
+}
+.snapshot-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid var(--line);
+}
+.snapshot-item:last-child { border-right: none; }
+.snapshot-item .label { font-size: 15px; letter-spacing: 2px; color: var(--grey); font-weight: 600; }
+.snapshot-item .price { font-size: 25px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.snapshot-item .chg { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.snapshot-item.is-alert { animation: pulse 1.6s ease-in-out infinite; }
+
+/* Board */
+.board { display: flex; gap: 24px; flex: 1 1 auto; padding: 16px 40px; overflow: hidden; }
+.board-col { flex: 1; }
+.board-table { width: 100%; border-collapse: collapse; font-size: 18px; table-layout: fixed; }
+.board-table thead th {
+  text-align: left;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--grey);
+  padding: 6px 10px;
+  border-bottom: 2px solid var(--line);
+  text-transform: uppercase;
+}
+.board-table td { padding: 6px 10px; border-bottom: 1px solid #151b2c; font-variant-numeric: tabular-nums; }
+.board-table tr.is-alert { animation: pulse 1.6s ease-in-out infinite; }
+.ticker-cell { font-weight: 800; letter-spacing: 1px; }
+.ticker-name { font-size: 11px; font-weight: 400; color: var(--grey); }
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+
+.flag-badge {
+  display: inline-block;
+  min-width: 18px;
+  text-align: center;
+  margin-right: 4px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.flag-badge.price { background: var(--red); color: #fff; }
+.flag-badge.stoch { background: var(--gold); color: #1a1300; }
+.flag-badge.ath { background: var(--green); color: #04220f; }
+
+@keyframes pulse {
+  0%, 100% { background-color: rgba(225, 29, 46, 0.12); }
+  50% { background-color: rgba(225, 29, 46, 0.32); }
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 40px;
+  background: #000;
+  border-top: 2px solid var(--red);
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: var(--grey);
+}
+.footer-brand { color: var(--gold); font-weight: 700; }
+.legend { display: flex; align-items: center; gap: 4px; font-size: 13px; letter-spacing: 1px; }

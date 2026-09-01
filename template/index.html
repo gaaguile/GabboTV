@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>GabboTV Market Alerts</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="broadcast">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">GABBO</span><span class="brand-tv">TV</span></div>
+      <div class="title">MARKET ALERTS</div>
+      <div class="status">
+        <span id="market-badge" class="badge badge--closed">MARKET CLOSED</span>
+        <span id="updated-at" class="updated">UPDATED --:--:--</span>
+      </div>
+    </header>
+
+    <section class="snapshot-strip" id="snapshot-strip"></section>
+
+    <main class="board">
+      <div class="board-col" id="board-col-1"></div>
+      <div class="board-col" id="board-col-2"></div>
+    </main>
+
+    <footer class="footer">
+      <span id="alert-count">0 ACTIVE ALERTS</span>
+      <span class="legend">
+        <span class="flag-badge price">P</span>PRICE &nbsp;
+        <span class="flag-badge stoch">S</span>STOCHASTIC &nbsp;
+        <span class="flag-badge ath">A</span>ALL-TIME HIGH
+      </span>
+      <span class="footer-brand">GABBOTV &middot; LIVE MARKET DATA</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

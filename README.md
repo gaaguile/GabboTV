@@ -35,3 +35,30 @@ schtasks /Create /SC MINUTE /MO 5 /TN "GabboTV Market Alerts" `
 ```
 
 Run `npm run build` again any time you change `ticker-alerts.ts` or the `src/` files.
+
+## Broadcast template (CasparCG / SPX)
+
+`template/` holds the on-air graphic: a dark, Bloomberg/MSNBC-style dashboard board (two-column
+ticker grid + market-snapshot strip + market-open badge) that polls `data/snapshot.json` every
+5 seconds and highlights any row with an active alert (P = price threshold, S = stochastic
+oversold, A = all-time high).
+
+CasparCG's HTML producer needs a URL (not a `file://` path), so a small local server exposes
+`template/` and `data/`:
+
+```powershell
+npm run serve
+```
+
+Keep this running continuously (e.g. a Task Scheduler task with trigger "At log on", action
+`node C:\Users\Gabo\OneDrive\Repo\GabboTV\dist\src\serve.js`, set to restart on failure) — it's
+separate from the 5-minute alert-check task above, which only updates `data/snapshot.json`.
+
+Then, in the CasparCG AMCP console, add it as an HTML layer:
+
+```
+PLAY 1-1 "http://localhost:8080/index.html"
+```
+
+For SPX Graphics, add the same URL as an HTML/web source layer.
+
