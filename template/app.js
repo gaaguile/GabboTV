@@ -105,3 +105,100 @@ async function refresh() {
 
 refresh();
 setInterval(refresh, REFRESH_MS);
+
+// ── Scene cycling: market board, then 4 ETF weekly-net-return charts ────────
+
+const ETF_CHARTS_URL = "/data/etf-charts.json";
+const CHART_REFRESH_MS = 5 * 60 * 1000;
+
+const SCENES = [
+  { type: "market", durationMs: 60000 },
+  { type: "chart", symbol: "IVV", sinceYear: 2010, durationMs: 15000 },
+  { type: "chart", symbol: "IVV", sinceYear: 2023, durationMs: 15000 },
+  { type: "chart", symbol: "IYW", sinceYear: 2010, durationMs: 15000 },
+  { type: "chart", symbol: "IYW", sinceYear: 2023, durationMs: 15000 },
+];
+
+let etfCharts = {};
+let chartInstance = null;
+let sceneIndex = 0;
+
+async function refreshEtfCharts() {
+  try {
+    const res = await fetch(`${ETF_CHARTS_URL}?t=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) return;
+    const payload = await res.json();
+    etfCharts = payload.charts ?? {};
+  } catch (error) {
+    console.error("[GabboTV] ETF chart refresh failed", error);
+  }
+}
+
+function filterSince(points, sinceYear) {
+  const cutoff = new Date(`${sinceYear}-01-01T00:00:00Z`).getTime();
+  return (points ?? []).filter((p) => new Date(p.date).getTime() >= cutoff);
+}
+
+function renderChartScene(symbol, sinceYear) {
+  const chart = etfCharts[symbol];
+  document.getElementById("chart-title").textContent =
+    `${symbol} \u2014 WEEKLY NET RETURN SINCE ${sinceYear}`;
+
+  if (!chart) return;
+
+  const usd = filterSince(chart.pointsUsd, sinceYear).map((p) => [new Date(p.date).getTime(), p.cumulativeReturnPct]);
+  const clp = filterSince(chart.pointsClp, sinceYear).map((p) => [new Date(p.date).getTime(), p.cumulativeReturnPct]);
+
+  chartInstance = Highcharts.stockChart("chart-container", {
+    chart: { backgroundColor: "transparent" },
+    rangeSelector: { enabled: false },
+    navigator: { enabled: false },
+    scrollbar: { enabled: false },
+    credits: { enabled: false },
+    title: { text: null },
+    legend: {
+      enabled: true,
+      itemStyle: { color: "#f5f6fa" },
+      itemHoverStyle: { color: "#d4af37" },
+    },
+    xAxis: {
+      lineColor: "rgba(148, 163, 184, 0.32)",
+      tickColor: "rgba(148, 163, 184, 0.32)",
+      labels: { style: { color: "#8a90a3" } },
+    },
+    yAxis: {
+      title: { text: "Cumulative return (%)", style: { color: "#8a90a3" } },
+      labels: { format: "{value}%", style: { color: "#8a90a3" } },
+      gridLineColor: "rgba(148, 163, 184, 0.12)",
+    },
+    tooltip: {
+      valueDecimals: 2,
+      valueSuffix: "%",
+      backgroundColor: "rgba(11, 16, 32, 0.96)",
+      borderColor: "rgba(212, 175, 55, 0.4)",
+      style: { color: "#f5f6fa" },
+    },
+    plotOptions: { series: { turboThreshold: 0 } },
+    series: [
+      { name: `${symbol} (USD)`, data: usd, color: "#1fbf5c" },
+      { name: `${symbol} (CLP-adjusted)`, data: clp, color: "#d4af37" },
+    ],
+  });
+}
+
+function showScene(scene) {
+  document.getElementById("scene-market").hidden = scene.type !== "market";
+  document.getElementById("scene-chart").hidden = scene.type !== "chart";
+  if (scene.type === "chart") renderChartScene(scene.symbol, scene.sinceYear);
+}
+
+function advanceScene() {
+  const scene = SCENES[sceneIndex];
+  showScene(scene);
+  sceneIndex = (sceneIndex + 1) % SCENES.length;
+  setTimeout(advanceScene, scene.durationMs);
+}
+
+refreshEtfCharts();
+setInterval(refreshEtfCharts, CHART_REFRESH_MS);
+advanceScene();

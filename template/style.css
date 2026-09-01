@@ -23,6 +23,9 @@ html, body {
 
 .broadcast { display: flex; flex-direction: column; width: 100%; height: 100%; }
 
+.scene { display: flex; flex-direction: column; width: 100%; height: 100%; }
+.scene[hidden] { display: none; }
+
 /* Header */
 .topbar {
   display: flex;
@@ -121,3 +124,7 @@ html, body {
 }
 .footer-brand { color: var(--gold); font-weight: 700; }
 .legend { display: flex; align-items: center; gap: 4px; font-size: 13px; letter-spacing: 1px; }
+
+/* Chart scenes (weekly net return) */
+.chart-board { flex: 1 1 auto; padding: 24px 40px; }
+.chart-container { width: 100%; height: 100%; }

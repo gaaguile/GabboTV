@@ -7,34 +7,50 @@
 </head>
 <body>
   <div class="broadcast">
-    <header class="topbar">
-      <div class="brand"><span class="brand-mark">GABRIEL TEKKEN</span><span class="brand-tv">TV</span></div>
-      <div class="title">MARKET ALERTS</div>
-      <div class="status">
-        <span id="market-badge" class="badge badge--closed">MARKET CLOSED</span>
-        <span id="updated-at" class="updated">UPDATED --:--:--</span>
-      </div>
-    </header>
+    <div id="scene-market" class="scene">
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">GABRIEL TEKKEN</span><span class="brand-tv">TV</span></div>
+        <div class="title">MARKET ALERTS</div>
+        <div class="status">
+          <span id="market-badge" class="badge badge--closed">MARKET CLOSED</span>
+          <span id="updated-at" class="updated">UPDATED --:--:--</span>
+        </div>
+      </header>
 
-    <section class="snapshot-strip" id="snapshot-strip"></section>
+      <section class="snapshot-strip" id="snapshot-strip"></section>
 
-    <main class="board">
-      <div class="board-col" id="board-col-1"></div>
-      <div class="board-col" id="board-col-2"></div>
-      <div class="board-col" id="board-col-3"></div>
-    </main>
+      <main class="board">
+        <div class="board-col" id="board-col-1"></div>
+        <div class="board-col" id="board-col-2"></div>
+        <div class="board-col" id="board-col-3"></div>
+      </main>
 
-    <footer class="footer">
-      <span id="alert-count">0 ACTIVE ALERTS</span>
-      <span class="legend">
-        <span class="flag-badge price">P</span>PRICE &nbsp;
-        <span class="flag-badge stoch">S</span>STOCHASTIC &nbsp;
-        <span class="flag-badge ath">A</span>ALL-TIME HIGH
-      </span>
-      <span class="footer-brand">GABBOTV &middot; LIVE MARKET DATA</span>
-    </footer>
+      <footer class="footer">
+        <span id="alert-count">0 ACTIVE ALERTS</span>
+        <span class="legend">
+          <span class="flag-badge price">P</span>PRICE &nbsp;
+          <span class="flag-badge stoch">S</span>STOCHASTIC &nbsp;
+          <span class="flag-badge ath">A</span>ALL-TIME HIGH
+        </span>
+        <span class="footer-brand">GABBOTV &middot; LIVE MARKET DATA</span>
+      </footer>
+    </div>
+
+    <div id="scene-chart" class="scene" hidden>
+      <header class="topbar">
+        <div class="brand"><span class="brand-mark">GABRIEL TEKKEN</span><span class="brand-tv">TV</span></div>
+        <div class="title" id="chart-title">WEEKLY NET RETURN</div>
+        <div class="status">
+          <span class="updated">USD &amp; CLP-ADJUSTED &middot; DIVIDENDS REINVESTED</span>
+        </div>
+      </header>
+      <main class="chart-board">
+        <div id="chart-container" class="chart-container"></div>
+      </main>
+    </div>
   </div>
 
+  <script src="vendor/highstock.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
