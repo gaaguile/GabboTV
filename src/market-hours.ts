@@ -67,3 +67,31 @@ export function isMarketOpen(
 
     return { isOpen: true };
 }
+
+export type MarketPhase = "MARKET_OPEN" | "FUTURES_OPEN" | "MARKET_CLOSED";
+
+// Approximate CME equity index futures (Globex) hours: Sun 6pm ET - Fri 5pm ET, with a daily
+// maintenance break 5-6pm ET Mon-Thu. US market holidays aren't modeled here (futures often
+// keep near-normal hours on cash-market holidays).
+function isFuturesMarketOpen(dateObj: ETDateTimeParts): boolean {
+    const timeInMinutes = dateObj.hour * 60 + dateObj.minute;
+    const dailyCloseStart = 17 * 60; // 5:00 PM ET
+    const dailyReopens = 18 * 60; // 6:00 PM ET
+
+    if (dateObj.dayOfWeek === 6) return false; // Saturday: closed all day
+    if (dateObj.dayOfWeek === 0) return timeInMinutes >= dailyReopens; // Sunday: opens 6pm
+    if (dateObj.dayOfWeek === 5) return timeInMinutes < dailyCloseStart; // Friday: closes 5pm
+
+    // Mon-Thu: open all day except the 5-6pm daily maintenance break
+    return timeInMinutes < dailyCloseStart || timeInMinutes >= dailyReopens;
+}
+
+export function getMarketPhase(
+    holidays: string[],
+    dateObj: ETDateTimeParts = getETDateTimeParts(),
+): { phase: MarketPhase; reason?: string } {
+    const cash = isMarketOpen(holidays, dateObj);
+    if (cash.isOpen) return { phase: "MARKET_OPEN" };
+    if (isFuturesMarketOpen(dateObj)) return { phase: "FUTURES_OPEN", reason: cash.reason };
+    return { phase: "MARKET_CLOSED", reason: cash.reason };
+}

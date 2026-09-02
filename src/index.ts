@@ -9,7 +9,7 @@ import {
     STOCHASTIC_THRESHOLD,
     US_MARKET_HOLIDAYS,
 } from "../ticker-alerts.js";
-import { getETDateTimeParts, isMarketOpen } from "./market-hours.js";
+import { getETDateTimeParts, isMarketOpen, getMarketPhase } from "./market-hours.js";
 import { calculateStochastic } from "./stochastic.js";
 import { fetchTickerHistory } from "./yahoo.js";
 import { loadAlertState, saveAlertState, alreadyFiredToday, markFiredToday, appendAlertHistory } from "./alert-state.js";
@@ -120,7 +120,7 @@ async function main(): Promise<void> {
 
     const snapshot: Snapshot = {
         generatedAt: new Date().toISOString(),
-        marketStatus: { isOpen: marketStatus.isOpen, reason: marketStatus.reason },
+        marketStatus: { isOpen: marketStatus.isOpen, phase: getMarketPhase(US_MARKET_HOLIDAYS, nowET).phase, reason: marketStatus.reason },
         tickers,
         marketSnapshot,
         newAlerts,

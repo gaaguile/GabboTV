@@ -38,7 +38,7 @@ export interface AlertEvent {
 
 export interface Snapshot {
     generatedAt: string;
-    marketStatus: { isOpen: boolean; reason?: string };
+    marketStatus: { isOpen: boolean; phase: "MARKET_OPEN" | "FUTURES_OPEN" | "MARKET_CLOSED"; reason?: string };
     tickers: TickerReading[];
     marketSnapshot: TickerReading[];
     newAlerts: AlertEvent[];

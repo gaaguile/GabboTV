@@ -149,5 +149,3 @@ console for `Initialized html module.` appearing with **no** preceding CEF error
 Element names can otherwise vary slightly between CasparCG Server versions — check the XSD/sample
 config shipped with your install if this doesn't validate. Restart CasparCG Server after editing,
 then run the `PLAY` command above.
-
-

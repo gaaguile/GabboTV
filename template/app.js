@@ -76,11 +76,17 @@ function renderSnapshotStrip(items) {
     .join("");
 }
 
+const PHASE_LABELS = {
+  MARKET_OPEN: { text: "MARKET OPEN", cssClass: "badge--open" },
+  FUTURES_OPEN: { text: "FUTURES OPEN", cssClass: "badge--futures" },
+  MARKET_CLOSED: { text: "MARKET CLOSED", cssClass: "badge--closed" },
+};
+
 function renderStatus(snapshot) {
-  const isOpen = Boolean(snapshot.marketStatus?.isOpen);
+  const phase = PHASE_LABELS[snapshot.marketStatus?.phase] ?? PHASE_LABELS.MARKET_CLOSED;
   const badge = document.getElementById("market-badge");
-  badge.textContent = isOpen ? "MARKET OPEN" : "MARKET CLOSED";
-  badge.className = `badge ${isOpen ? "badge--open" : "badge--closed"}`;
+  badge.textContent = phase.text;
+  badge.className = `badge ${phase.cssClass}`;
 
   document.getElementById("updated-at").textContent =
     `UPDATED ${new Date(snapshot.generatedAt).toLocaleTimeString("en-US", { hour12: false })}`;
@@ -148,6 +154,13 @@ function renderChartScene(symbol, sinceYear) {
 
   const usd = filterSince(chart.pointsUsd, sinceYear).map((p) => [new Date(p.date).getTime(), p.cumulativeReturnPct]);
   const clp = filterSince(chart.pointsClp, sinceYear).map((p) => [new Date(p.date).getTime(), p.cumulativeReturnPct]);
+
+  // Destroy the previous chart before re-rendering, otherwise Highcharts can carry over
+  // the old y-axis extremes instead of auto-scaling to the newly filtered data range.
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
 
   chartInstance = Highcharts.stockChart("chart-container", {
     chart: { backgroundColor: "transparent" },
