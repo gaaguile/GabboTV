@@ -145,6 +145,15 @@ function filterSince(points, sinceYear) {
   return (points ?? []).filter((p) => new Date(p.date).getTime() >= cutoff);
 }
 
+// Filters to the window, then rebases so the window's first point reads 0% (using the
+// underlying compounding indexValue, not the original since-2010 cumulativeReturnPct).
+function rebaseSince(points, sinceYear) {
+  const filtered = filterSince(points, sinceYear);
+  if (filtered.length === 0) return [];
+  const baseIndexValue = filtered[0].indexValue;
+  return filtered.map((p) => [new Date(p.date).getTime(), (p.indexValue / baseIndexValue - 1) * 100]);
+}
+
 function renderChartScene(symbol, sinceYear) {
   const chart = etfCharts[symbol];
   document.getElementById("chart-title").textContent =
@@ -152,8 +161,8 @@ function renderChartScene(symbol, sinceYear) {
 
   if (!chart) return;
 
-  const usd = filterSince(chart.pointsUsd, sinceYear).map((p) => [new Date(p.date).getTime(), p.cumulativeReturnPct]);
-  const clp = filterSince(chart.pointsClp, sinceYear).map((p) => [new Date(p.date).getTime(), p.cumulativeReturnPct]);
+  const usd = rebaseSince(chart.pointsUsd, sinceYear);
+  const clp = rebaseSince(chart.pointsClp, sinceYear);
 
   // Destroy the previous chart before re-rendering, otherwise Highcharts can carry over
   // the old y-axis extremes instead of auto-scaling to the newly filtered data range.
