@@ -38,6 +38,26 @@ schtasks /Create /SC MINUTE /MO 5 /TN "Gabriel TEKKEN TV Market Alerts" `
 
 Run `npm run build` again any time you change `ticker-alerts.ts` or the `src/` files.
 
+## Docker
+
+Docker Compose runs the web server and the five-minute data updater as separate services.
+Both share a persistent `gabbotv-data` volume containing `snapshot.json`, `etf-charts.json`,
+the alert state, and the CSV history:
+
+```powershell
+docker compose up -d --build
+docker compose logs -f
+```
+
+The broadcast template is available at `http://localhost:8080/`. Stop the services with:
+
+```powershell
+docker compose down
+```
+
+CasparCG must run on the Windows host because Docker containers do not control the host's
+fullscreen monitor. Point CasparCG at the host URL `http://localhost:8080/index.html`.
+
 If a task was already created pointing at `node.exe` directly, update it in place instead of
 recreating it:
 

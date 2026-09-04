@@ -154,6 +154,45 @@ function rebaseSince(points, sinceYear) {
   return filtered.map((p) => [new Date(p.date).getTime(), (p.indexValue / baseIndexValue - 1) * 100]);
 }
 
+// % distance from the latest indexValue to its all-time high, over the FULL history (not the
+// since-year window), since the all-time high should reflect the true historical peak.
+function pctToAllTimeHigh(points) {
+  if (!points || points.length === 0) return null;
+  const maxIndexValue = Math.max(...points.map((p) => p.indexValue));
+  const lastIndexValue = points[points.length - 1].indexValue;
+  return (lastIndexValue / maxIndexValue - 1) * 100;
+}
+
+// Attaches a "last value" + "distance to all-time-high" data label pair to the final point only.
+function withLastPointLabels(seriesData, athPct) {
+  if (seriesData.length === 0) return seriesData;
+  const [x, y] = seriesData[seriesData.length - 1];
+  const athText = athPct == null ? "ATH n/a" : `ATH ${athPct >= 0 ? "+" : ""}${athPct.toFixed(1)}%`;
+  const lastPoint = {
+    x,
+    y,
+    dataLabels: [
+      {
+        enabled: true,
+        format: `${y >= 0 ? "+" : ""}{y:.1f}%`,
+        align: "left",
+        x: 8,
+        y: -4,
+        style: { fontWeight: "700", textOutline: "none" },
+      },
+      {
+        enabled: true,
+        format: athText,
+        align: "left",
+        x: 8,
+        y: 12,
+        style: { fontSize: "11px", fontWeight: "600", color: "#8a90a3", textOutline: "none" },
+      },
+    ],
+  };
+  return [...seriesData.slice(0, -1), lastPoint];
+}
+
 function renderChartScene(symbol, sinceYear) {
   const chart = etfCharts[symbol];
   document.getElementById("chart-title").textContent =
@@ -161,8 +200,8 @@ function renderChartScene(symbol, sinceYear) {
 
   if (!chart) return;
 
-  const usd = rebaseSince(chart.pointsUsd, sinceYear);
-  const clp = rebaseSince(chart.pointsClp, sinceYear);
+  const usd = withLastPointLabels(rebaseSince(chart.pointsUsd, sinceYear), pctToAllTimeHigh(chart.pointsUsd));
+  const clp = withLastPointLabels(rebaseSince(chart.pointsClp, sinceYear), pctToAllTimeHigh(chart.pointsClp));
 
   // Destroy the previous chart before re-rendering, otherwise Highcharts can carry over
   // the old y-axis extremes instead of auto-scaling to the newly filtered data range.
@@ -200,10 +239,10 @@ function renderChartScene(symbol, sinceYear) {
       borderColor: "rgba(212, 175, 55, 0.4)",
       style: { color: "#f5f6fa" },
     },
-    plotOptions: { series: { turboThreshold: 0 } },
+    plotOptions: { series: { turboThreshold: 0, dataLabels: { enabled: false } } },
     series: [
-      { name: `${symbol} (USD)`, data: usd, color: "#1fbf5c" },
-      { name: `${symbol} (CLP-adjusted)`, data: clp, color: "#d4af37" },
+      { name: `${symbol} (USD)`, data: usd, color: "#1fbf5c", dataLabels: { style: { color: "#1fbf5c" } } },
+      { name: `${symbol} (CLP-adjusted)`, data: clp, color: "#d4af37", dataLabels: { style: { color: "#d4af37" } } },
     ],
   });
 }
