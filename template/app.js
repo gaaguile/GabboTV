@@ -154,6 +154,13 @@ function rebaseSince(points, sinceYear) {
   return filtered.map((p) => [new Date(p.date).getTime(), (p.indexValue / baseIndexValue - 1) * 100]);
 }
 
+function rebaseFxSince(points, sinceYear) {
+  const filtered = filterSince(points, sinceYear).filter((p) => Number.isFinite(p.fxRate));
+  if (filtered.length === 0) return [];
+  const baseFxRate = filtered[0].fxRate;
+  return filtered.map((p) => [new Date(p.date).getTime(), (p.fxRate / baseFxRate - 1) * 100]);
+}
+
 // % distance from the latest indexValue to its all-time high, over the FULL history (not the
 // since-year window), since the all-time high should reflect the true historical peak.
 function pctToAllTimeHigh(points) {
@@ -202,6 +209,7 @@ function renderChartScene(symbol, sinceYear) {
 
   const usd = withLastPointLabels(rebaseSince(chart.pointsUsd, sinceYear), pctToAllTimeHigh(chart.pointsUsd));
   const clp = withLastPointLabels(rebaseSince(chart.pointsClp, sinceYear), pctToAllTimeHigh(chart.pointsClp));
+  const usdClp = rebaseFxSince(chart.pointsClp, sinceYear);
 
   // Destroy the previous chart before re-rendering, otherwise Highcharts can carry over
   // the old y-axis extremes instead of auto-scaling to the newly filtered data range.
@@ -243,6 +251,7 @@ function renderChartScene(symbol, sinceYear) {
     series: [
       { name: `${symbol} (USD)`, data: usd, color: "#1fbf5c", dataLabels: { style: { color: "#1fbf5c" } } },
       { name: `${symbol} (CLP-adjusted)`, data: clp, color: "#d4af37", dataLabels: { style: { color: "#d4af37" } } },
+      { name: "USD/CLP (% change)", data: usdClp, color: "#22d3ee" },
     ],
   });
 }
