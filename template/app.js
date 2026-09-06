@@ -182,18 +182,65 @@ function withLastPointLabels(seriesData, athPct) {
       {
         enabled: true,
         format: `${y >= 0 ? "+" : ""}{y:.1f}%`,
-        align: "left",
-        x: 8,
+        align: "right",
+        x: -8,
         y: -4,
         style: { fontWeight: "700", textOutline: "none" },
       },
       {
         enabled: true,
         format: athText,
-        align: "left",
-        x: 8,
+        align: "right",
+        x: -180,
         y: 12,
-        style: { fontSize: "11px", fontWeight: "600", color: "#8a90a3", textOutline: "none" },
+        crop: true,
+        overflow: "justify",
+        style: { fontSize: "16px", fontWeight: "800", color: "#f5f6fa", textOutline: "none" },
+      },
+    ],
+  };
+  return [...seriesData.slice(0, -1), lastPoint];
+}
+
+function withFxPointLabels(seriesData, points) {
+  if (seriesData.length === 0 || points.length === 0) return seriesData;
+  const [x, y] = seriesData[seriesData.length - 1];
+  const latestRate = points[points.length - 1].fxRate;
+  const allTimeHigh = Math.max(...points.map((point) => point.fxRate));
+  const athPct = (latestRate / allTimeHigh - 1) * 100;
+  const lastPoint = {
+    x,
+    y,
+    dataLabels: [
+      {
+        enabled: true,
+        format: `USD/CLP ${latestRate.toFixed(0)}`,
+        align: "right",
+        x: -8,
+        y: 18,
+        crop: false,
+        overflow: "allow",
+        style: { fontSize: "16px", fontWeight: "800", color: "#22d3ee", textOutline: "none" },
+      },
+      {
+        enabled: true,
+        format: `USD/CLP ${y >= 0 ? "+" : ""}${y.toFixed(1)}%`,
+        align: "right",
+        x: -8,
+        y: -18,
+        crop: false,
+        overflow: "allow",
+        style: { fontSize: "16px", fontWeight: "800", color: "#22d3ee", textOutline: "none" },
+      },
+      {
+        enabled: true,
+        format: `ATH ${athPct >= 0 ? "+" : ""}${athPct.toFixed(1)}%`,
+        align: "right",
+        x: -180,
+        y: 12,
+        crop: true,
+        overflow: "justify",
+        style: { fontSize: "16px", fontWeight: "800", color: "#f5f6fa", textOutline: "none" },
       },
     ],
   };
@@ -209,7 +256,8 @@ function renderChartScene(symbol, sinceYear) {
 
   const usd = withLastPointLabels(rebaseSince(chart.pointsUsd, sinceYear), pctToAllTimeHigh(chart.pointsUsd));
   const clp = withLastPointLabels(rebaseSince(chart.pointsClp, sinceYear), pctToAllTimeHigh(chart.pointsClp));
-  const usdClp = rebaseFxSince(chart.pointsClp, sinceYear);
+  const fxPoints = filterSince(chart.pointsClp, sinceYear).filter((p) => Number.isFinite(p.fxRate));
+  const usdClp = withFxPointLabels(rebaseFxSince(chart.pointsClp, sinceYear), fxPoints);
 
   // Destroy the previous chart before re-rendering, otherwise Highcharts can carry over
   // the old y-axis extremes instead of auto-scaling to the newly filtered data range.
