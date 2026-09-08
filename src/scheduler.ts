@@ -2,7 +2,7 @@ import { spawn } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const intervalMs = Number(process.env.UPDATE_INTERVAL_MS) || 5 * 60 * 1000;
+const intervalMs = Number(process.env.UPDATE_INTERVAL_MS) || 60 * 1000;
 const indexPath = join(dirname(fileURLToPath(import.meta.url)), "index.js");
 
 function runUpdate(): void {

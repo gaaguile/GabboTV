@@ -22,7 +22,7 @@ Application to report on a TV or monitor screen market alerts with professional 
 
 ## 4. Requisitos no funcionales (si aplica)
 
-- **Performance:** update each 5 minutes
+- **Performance:** update each minute
 - **Manejo de errores:** any necessary since it's going to use Yahoo API
 - **Compatibilidad:** Windows11, CLoudflare workers and storage or any other API needed.
 

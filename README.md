@@ -23,15 +23,15 @@ npm run build
 npm start
 ```
 
-## Schedule every 5 minutes (Windows Task Scheduler)
+## Schedule every minute (Windows Task Scheduler)
 
-Create a scheduled task that runs, every 5 minutes, all day (the script itself checks
+Create a scheduled task that runs every minute, all day (the script itself checks
 US market hours/holidays and skips firing new alerts when the market is closed). Launching
 through `scripts/run-alert-check-hidden.vbs` (via `wscript.exe`) avoids the console window
 that popping up `node.exe` directly would cause:
 
 ```powershell
-schtasks /Create /SC MINUTE /MO 5 /TN "Gabriel TEKKEN TV Market Alerts" `
+schtasks /Create /SC MINUTE /MO 1 /TN "Gabriel TEKKEN TV Market Alerts" `
   /TR 'wscript.exe "C:\Users\Gabo\OneDrive\Repo\GabboTV\scripts\run-alert-check-hidden.vbs"' `
   /ST 00:00
 ```
@@ -40,7 +40,7 @@ Run `npm run build` again any time you change `ticker-alerts.ts` or the `src/` f
 
 ## Docker
 
-Docker Compose runs the web server and the five-minute data updater as separate services.
+Docker Compose runs the web server and the one-minute data updater as separate services.
 Both share a persistent `gabbotv-data` volume containing `snapshot.json`, `etf-charts.json`,
 the alert state, and the CSV history:
 
@@ -80,7 +80,7 @@ CasparCG's HTML producer needs a URL (not a `file://` path), so a small local se
 npm run serve
 ```
 
-Keep this running continuously and hidden — it's separate from the 5-minute alert-check task
+Keep this running continuously and hidden — it's separate from the one-minute alert-check task
 above, which only updates `data/snapshot.json`. Task Scheduler kills tasks after 3 days by
 default, so this one needs an unlimited execution time limit; that setting isn't exposed by
 `schtasks.exe`, so create it with PowerShell's `ScheduledTasks` module instead:

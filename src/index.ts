@@ -11,7 +11,7 @@ import {
 } from "../ticker-alerts.js";
 import { getETDateTimeParts, isMarketOpen, getMarketPhase } from "./market-hours.js";
 import { calculateStochastic } from "./stochastic.js";
-import { fetchTickerHistory } from "./yahoo.js";
+import { fetchTickerHistory, fetchIntradayQuote } from "./yahoo.js";
 import { loadAlertState, saveAlertState, alreadyFiredToday, markFiredToday, appendAlertHistory } from "./alert-state.js";
 import { fetchWeeklyNetReturn } from "./etf-net-return.js";
 import type { AlertEvent, AlertType, Snapshot, TickerHistory, TickerReading } from "./types.js";
@@ -46,6 +46,22 @@ async function main(): Promise<void> {
     uniqueTickers.forEach((ticker, i) => {
         const result = fetchResults[i];
         historyByTicker.set(ticker, result.status === "fulfilled" ? result.value : null);
+    });
+
+    const snapshotQuotes = await Promise.allSettled(
+        MARKET_SNAPSHOT_SYMBOLS.map(({ ticker }) => fetchIntradayQuote(ticker)),
+    );
+    MARKET_SNAPSHOT_SYMBOLS.forEach(({ ticker }, index) => {
+        const quoteResult = snapshotQuotes[index];
+        const intradayQuote = quoteResult.status === "fulfilled" ? quoteResult.value : null;
+        const dailyHistory = historyByTicker.get(ticker);
+        if (intradayQuote && dailyHistory) {
+            historyByTicker.set(ticker, {
+                ...dailyHistory,
+                currentPrice: intradayQuote.currentPrice,
+                previousClose: intradayQuote.previousClose,
+            });
+        }
     });
 
     const state = loadAlertState(STATE_PATH);

@@ -12,9 +12,9 @@ services:
     build: .
     container_name: gabbotv-updater
     restart: unless-stopped
-    command: ["node", "dist/src/scheduler.js"]
+    command: [ "node", "dist/src/scheduler.js" ]
     environment:
-      UPDATE_INTERVAL_MS: "300000"
+      UPDATE_INTERVAL_MS: "60000"
     volumes:
       - gabbotv-data:/app/data
 
