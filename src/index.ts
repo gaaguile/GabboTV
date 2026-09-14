@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync, renameSync, existsSync, readFileSync } from "node:fs";
+import { writeFileSync, mkdirSync, renameSync, existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -26,6 +26,7 @@ const ETF_CHARTS_PATH = join(DATA_DIR, "etf-charts.json");
 // Chart scenes cover these tickers, since 2010 (the "since 2023" scenes filter this client-side).
 const ETF_CHART_TICKERS = ["IVV", "IYW"];
 const ETF_CHARTS_SINCE = "2010-01-01T00:00:00Z";
+const ETF_CHARTS_REFRESH_MS = 0;
 
 // All-time-high breakout tolerance: treat "within 0.1% of ATH" as a breakout too.
 const ATH_TOLERANCE = 0.001;
@@ -160,14 +161,16 @@ function writeSnapshotAtomic(snapshot: Snapshot): void {
     renameSync(tmpPath, SNAPSHOT_PATH);
 }
 
-// Weekly data barely moves intraday, so only refetch once per trading day instead of every 5 min.
+// Weekly data moves slowly, but the front-end chart labels need to refresh on a short cadence
+// so the last-point percentages and USD/CLP overlays do not appear frozen between updates.
 async function refreshEtfChartsIfStale(todayStr: string): Promise<void> {
-    if (existsSync(ETF_CHARTS_PATH)) {
+    const now = Date.now();
+    if (ETF_CHARTS_REFRESH_MS > 0 && existsSync(ETF_CHARTS_PATH)) {
         try {
-            const existing = JSON.parse(readFileSync(ETF_CHARTS_PATH, "utf8")) as { generatedAtDate?: string };
-            if (existing.generatedAtDate === todayStr) return;
+            const stat = statSync(ETF_CHARTS_PATH);
+            if (now - stat.mtimeMs < ETF_CHARTS_REFRESH_MS) return;
         } catch {
-            // Fall through and regenerate on a parse failure.
+            // Fall through and regenerate on a parse or stat failure.
         }
     }
 

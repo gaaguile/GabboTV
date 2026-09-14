@@ -115,7 +115,7 @@ setInterval(refresh, REFRESH_MS);
 // ── Scene cycling: market board, then 4 ETF weekly-net-return charts ────────
 
 const ETF_CHARTS_URL = "/data/etf-charts.json";
-const CHART_REFRESH_MS = 5 * 60 * 1000;
+const CHART_REFRESH_MS = 60 * 1000;
 
 const SCENES = [
   { type: "market", durationMs: 60000 },

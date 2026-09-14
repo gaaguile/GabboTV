@@ -72,13 +72,22 @@ export async function fetchIntradayQuote(
         const quote = ((result.indicators as Record<string, unknown>)?.quote as unknown[])?.[0] as
             | Record<string, Array<number | null>>
             | undefined;
-        const closes = quote?.close ?? [];
-        const currentPrice = [...closes].reverse().find(
+        const closes = (quote?.close ?? []).filter(
             (value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0,
         );
+
+        if (closes.length === 0) return null;
+
+        const latestClose = [...closes].reverse().find(
+            (value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0,
+        );
+        const currentPrice =
+            (typeof meta.regularMarketPrice === "number" && Number.isFinite(meta.regularMarketPrice)
+                ? meta.regularMarketPrice
+                : latestClose) ?? latestClose;
         const previousClose = [meta.chartPreviousClose, meta.previousClose].find(
             (value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0,
-        );
+        ) ?? closes[closes.length - 2] ?? currentPrice;
 
         if (!currentPrice || !previousClose) return null;
         return { currentPrice, previousClose };
