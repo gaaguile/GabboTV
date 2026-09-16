@@ -52,9 +52,11 @@ async function main(): Promise<void> {
     const snapshotQuotes = await Promise.allSettled(
         MARKET_SNAPSHOT_SYMBOLS.map(({ ticker }) => fetchIntradayQuote(ticker)),
     );
+    const intradayQuotesByTicker = new Map<string, { currentPrice: number; previousClose: number }>();
     MARKET_SNAPSHOT_SYMBOLS.forEach(({ ticker }, index) => {
         const quoteResult = snapshotQuotes[index];
         const intradayQuote = quoteResult.status === "fulfilled" ? quoteResult.value : null;
+        if (intradayQuote) intradayQuotesByTicker.set(ticker, intradayQuote);
         const dailyHistory = historyByTicker.get(ticker);
         if (intradayQuote && dailyHistory) {
             historyByTicker.set(ticker, {
@@ -73,6 +75,31 @@ async function main(): Promise<void> {
         const checkStochastic = mainTickerSet.has(ticker);
 
         if (!history) {
+            const intradayQuote = intradayQuotesByTicker.get(ticker);
+            if (intradayQuote) {
+                const percentChange =
+                    ((intradayQuote.currentPrice - intradayQuote.previousClose) / intradayQuote.previousClose) * 100;
+                const isAlertPriceChange = Math.abs(percentChange) >= ALERT_THRESHOLD;
+
+                maybeFireAlert(ticker, "price_change", isAlertPriceChange, {
+                    currentPrice: intradayQuote.currentPrice,
+                    previousClose: intradayQuote.previousClose,
+                    percentChange,
+                });
+
+                return {
+                    ticker,
+                    label,
+                    dataAvailable: true,
+                    currentPrice: intradayQuote.currentPrice,
+                    previousClose: intradayQuote.previousClose,
+                    percentChange,
+                    isAlertPriceChange,
+                    isAlertStochastic: false,
+                    isAlertAllTimeHigh: false,
+                };
+            }
+
             return {
                 ticker,
                 label,

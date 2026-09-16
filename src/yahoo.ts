@@ -1,5 +1,14 @@
 import type { TickerHistory } from "./types.js";
 
+function etDateKey(timestampSeconds: number): string {
+    return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).format(new Date(timestampSeconds * 1000));
+}
+
 // Fetches full available daily history in one call: covers current price, previous
 // close, the last 14 bars needed for Stochastic(14,3,3), and the all-time high.
 export async function fetchTickerHistory(ticker: string): Promise<TickerHistory | null> {
@@ -28,14 +37,26 @@ export async function fetchTickerHistory(ticker: string): Promise<TickerHistory 
 
         if (!q?.close || !q?.high || !q?.low) return null;
 
+        const timestamps = Array.isArray(result.timestamp) ? result.timestamp : [];
+        const closes = q.close.filter((v): v is number => typeof v === "number" && Number.isFinite(v) && v > 0);
         const highs = q.high.filter((v): v is number => typeof v === "number" && Number.isFinite(v) && v > 0);
         const lows = q.low.filter((v): v is number => typeof v === "number" && Number.isFinite(v) && v > 0);
-        const closes = q.close.filter((v): v is number => typeof v === "number" && Number.isFinite(v) && v > 0);
 
         if (closes.length < 2 || highs.length === 0 || lows.length === 0) return null;
 
         const currentPrice = closes[closes.length - 1];
-        const previousClose = closes[closes.length - 2];
+        const todayET = etDateKey(Date.now() / 1000);
+        const previousSessionCloses = timestamps
+            .map((timestamp, index) => ({ timestamp: Number(timestamp), close: q.close[index] }))
+            .filter(
+                (point): point is { timestamp: number; close: number } =>
+                    Number.isFinite(point.timestamp) &&
+                    typeof point.close === "number" &&
+                    Number.isFinite(point.close) &&
+                    point.close > 0 &&
+                    etDateKey(point.timestamp) < todayET,
+            );
+        const previousClose = previousSessionCloses.at(-1)?.close ?? closes[closes.length - 2];
         const allTimeHigh = Math.max(...highs);
 
         if (!currentPrice || !previousClose || currentPrice <= 0 || previousClose <= 0) return null;
@@ -85,7 +106,7 @@ export async function fetchIntradayQuote(
             (typeof meta.regularMarketPrice === "number" && Number.isFinite(meta.regularMarketPrice)
                 ? meta.regularMarketPrice
                 : latestClose) ?? latestClose;
-        const previousClose = [meta.chartPreviousClose, meta.previousClose].find(
+        const previousClose = [meta.previousClose, meta.chartPreviousClose].find(
             (value): value is number => typeof value === "number" && Number.isFinite(value) && value > 0,
         ) ?? closes[closes.length - 2] ?? currentPrice;
 
