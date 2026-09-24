@@ -9,6 +9,7 @@
     "start": "node dist/src/index.js",
     "serve": "node dist/src/serve.js",
     "schedule": "node dist/src/scheduler.js",
+    "generate:returns": "node scripts/generate-returns.mjs",
     "check": "tsc --noEmit"
   },
   "devDependencies": {
