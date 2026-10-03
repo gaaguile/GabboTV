@@ -126,6 +126,7 @@ html, body {
 .footer-brand { color: var(--gold); font-weight: 700; }
 .legend { display: flex; align-items: center; gap: 4px; font-size: 13px; letter-spacing: 1px; }
 .footnote { font-size: 13px; letter-spacing: 0.5px; color: var(--grey); text-transform: none; }
+.scene-countdown { border-left: 1px solid var(--line); padding-left: 20px; color: var(--white); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* Chart scenes (weekly net return) */
 .chart-board { flex: 1 1 auto; padding: 24px 40px; }

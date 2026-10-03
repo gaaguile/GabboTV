@@ -128,6 +128,7 @@ const SCENES = [
 let etfCharts = {};
 let chartInstance = null;
 let sceneIndex = 0;
+let sceneDeadline = 0;
 
 async function refreshEtfCharts() {
   try {
@@ -307,7 +308,18 @@ function renderChartScene(symbol, sinceYear) {
 function showScene(scene) {
   document.getElementById("scene-market").hidden = scene.type !== "market";
   document.getElementById("scene-chart").hidden = scene.type !== "chart";
+  sceneDeadline = Date.now() + scene.durationMs;
+  updateSceneCountdown();
   if (scene.type === "chart") renderChartScene(scene.symbol, scene.sinceYear);
+}
+
+function updateSceneCountdown() {
+  const remainingSeconds = Math.max(0, Math.ceil((sceneDeadline - Date.now()) / 1000));
+  const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, "0");
+  const seconds = String(remainingSeconds % 60).padStart(2, "0");
+  const text = `NEXT SCENE ${minutes}:${seconds}`;
+  document.getElementById("market-scene-countdown").textContent = text;
+  document.getElementById("chart-scene-countdown").textContent = text;
 }
 
 function advanceScene() {
@@ -319,4 +331,5 @@ function advanceScene() {
 
 refreshEtfCharts();
 setInterval(refreshEtfCharts, CHART_REFRESH_MS);
+setInterval(updateSceneCountdown, 1000);
 advanceScene();
