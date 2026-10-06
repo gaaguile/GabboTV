@@ -248,15 +248,58 @@ function withFxPointLabels(seriesData, points) {
   return [...seriesData.slice(0, -1), lastPoint];
 }
 
-function renderChartScene(symbol, sinceYear) {
+async function fetchLiveFinalChartPoint(symbol, sinceYear) {
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const from = now - 7 * 24 * 60 * 60;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=5m&period1=${from}&period2=${now}&range=5d`;
+    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (compatible; GabboTV/1.0)" } });
+    if (!res.ok) return null;
+    const payload = await res.json();
+    const result = payload?.chart?.result?.[0];
+    const quote = result?.indicators?.quote?.[0];
+    const closes = Array.isArray(quote?.close) ? quote.close : [];
+    const latest = [...closes].reverse().find((value) => Number.isFinite(value) && value > 0);
+    return Number.isFinite(latest) ? latest : null;
+  } catch (error) {
+    console.warn(`[GabboTV] live chart fetch failed for ${symbol}`, error);
+    return null;
+  }
+}
+
+async function renderChartScene(symbol, sinceYear) {
   const chart = etfCharts[symbol];
   document.getElementById("chart-title").textContent =
-    `${symbol} \u2014 WEEKLY NET RETURN SINCE ${sinceYear}`;
+    `${symbol} \u2014 LIVE WEEKLY NET RETURN SINCE ${sinceYear}`;
 
   if (!chart) return;
 
-  const usd = withLastPointLabels(rebaseSince(chart.pointsUsd, sinceYear), pctToAllTimeHigh(chart.pointsUsd));
-  const clp = withLastPointLabels(rebaseSince(chart.pointsClp, sinceYear), pctToAllTimeHigh(chart.pointsClp));
+  const filteredUsd = filterSince(chart.pointsUsd, sinceYear);
+  const filteredClp = filterSince(chart.pointsClp, sinceYear);
+  const usdLiveValue = await fetchLiveFinalChartPoint(symbol, sinceYear);
+  const clpLiveValue = await fetchLiveFinalChartPoint("USDCLP=X", sinceYear);
+
+  const usdSeries = [...rebaseSince(chart.pointsUsd, sinceYear)];
+  const clpSeries = [...rebaseSince(chart.pointsClp, sinceYear)];
+
+  if (filteredUsd.length > 0 && usdLiveValue != null) {
+    const first = filteredUsd[0];
+    const last = filteredUsd[filteredUsd.length - 1];
+    const livePct = (((usdLiveValue / last.close) * (last.indexValue / first.indexValue)) - 1) * 100;
+    const lastIndex = usdSeries.length - 1;
+    if (lastIndex >= 0) usdSeries[lastIndex] = [usdSeries[lastIndex][0], livePct];
+  }
+
+  if (filteredClp.length > 0 && clpLiveValue != null) {
+    const first = filteredClp[0];
+    const last = filteredClp[filteredClp.length - 1];
+    const liveFxPct = (((clpLiveValue / (last.fxRate ?? clpLiveValue)) * (last.indexValue / first.indexValue)) - 1) * 100;
+    const lastIndex = clpSeries.length - 1;
+    if (lastIndex >= 0) clpSeries[lastIndex] = [clpSeries[lastIndex][0], liveFxPct];
+  }
+
+  const usd = withLastPointLabels(usdSeries, pctToAllTimeHigh(chart.pointsUsd));
+  const clp = withLastPointLabels(clpSeries, pctToAllTimeHigh(chart.pointsClp));
   const fxPoints = filterSince(chart.pointsClp, sinceYear).filter((p) => Number.isFinite(p.fxRate));
   const usdClp = withFxPointLabels(rebaseFxSince(chart.pointsClp, sinceYear), fxPoints);
 
