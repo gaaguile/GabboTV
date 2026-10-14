@@ -112,15 +112,17 @@ async function refresh() {
 refresh();
 setInterval(refresh, REFRESH_MS);
 
-// ── Scene cycling: market board, then 4 ETF weekly-net-return charts ────────
+// ── Scene cycling: market board, then 6 ETF weekly-net-return charts ────────
 
 const ETF_CHARTS_URL = "/data/etf-charts.json";
 const CHART_REFRESH_MS = 60 * 1000;
 
 const SCENES = [
   { type: "market", durationMs: 60000 },
+  { type: "chart", symbol: "IVV", sinceYear: 1997, durationMs: 15000 },
   { type: "chart", symbol: "IVV", sinceYear: 2010, durationMs: 15000 },
   { type: "chart", symbol: "IVV", sinceYear: 2023, durationMs: 15000 },
+  { type: "chart", symbol: "IYW", sinceYear: 1997, durationMs: 15000 },
   { type: "chart", symbol: "IYW", sinceYear: 2010, durationMs: 15000 },
   { type: "chart", symbol: "IYW", sinceYear: 2023, durationMs: 15000 },
 ];

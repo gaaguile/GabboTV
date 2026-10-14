@@ -23,9 +23,9 @@ const STATE_PATH = join(DATA_DIR, "alert-state.json");
 const HISTORY_PATH = join(DATA_DIR, "alert-history.csv");
 const ETF_CHARTS_PATH = join(DATA_DIR, "etf-charts.json");
 
-// Chart scenes cover these tickers, since 2010 (the "since 2023" scenes filter this client-side).
+// Chart scenes cover these tickers since 1997 (date-window scenes filter client-side).
 const ETF_CHART_TICKERS = ["IVV", "IYW"];
-const ETF_CHARTS_SINCE = "2010-01-01T00:00:00Z";
+const ETF_CHARTS_SINCE = "1997-01-01T00:00:00Z";
 const ETF_CHARTS_REFRESH_MS = 0;
 
 // All-time-high breakout tolerance: treat "within 0.1% of ATH" as a breakout too.
