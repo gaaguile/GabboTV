@@ -1,4 +1,17 @@
-node_modules/
-dist/
-data/
-*.log
+/node_modules/
+/dist/
+
+# Local environment and secret files
+.env
+.env.*
+!.env.example
+*.env
+
+# Generated runtime data
+/data/alert-history.csv
+/data/alert-state.json
+/data/snapshot*.json
+/data/etf-charts.json
+
+# Regenerable weekly and monthly return exports
+/data/returns/
