@@ -164,8 +164,7 @@ function rebaseFxSince(points, sinceYear) {
   return filtered.map((p) => [new Date(p.date).getTime(), (p.fxRate / baseFxRate - 1) * 100]);
 }
 
-// % distance from the latest indexValue to its all-time high, over the FULL history (not the
-// since-year window), since the all-time high should reflect the true historical peak.
+// % distance from the latest indexValue to the high within the chart's visible window.
 function pctToAllTimeHigh(points) {
   if (!points || points.length === 0) return null;
   const maxIndexValue = Math.max(...points.map((p) => p.indexValue));
@@ -300,10 +299,15 @@ async function renderChartScene(symbol, sinceYear) {
     if (lastIndex >= 0) clpSeries[lastIndex] = [clpSeries[lastIndex][0], liveFxPct];
   }
 
-  const usd = withLastPointLabels(usdSeries, pctToAllTimeHigh(chart.pointsUsd));
-  const clp = withLastPointLabels(clpSeries, pctToAllTimeHigh(chart.pointsClp));
+  const usd = withLastPointLabels(usdSeries, pctToAllTimeHigh(filteredUsd));
+  const clp = withLastPointLabels(clpSeries, pctToAllTimeHigh(filteredClp));
   const fxPoints = filterSince(chart.pointsClp, sinceYear).filter((p) => Number.isFinite(p.fxRate));
   const usdClp = withFxPointLabels(rebaseFxSince(chart.pointsClp, sinceYear), fxPoints);
+  const startDate = filteredUsd[0]?.date;
+  const startTimestamp = startDate ? new Date(startDate).getTime() : null;
+  const startLabel = startDate
+    ? `START ${new Date(startDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}`
+    : "";
 
   // Destroy the previous chart before re-rendering, otherwise Highcharts can carry over
   // the old y-axis extremes instead of auto-scaling to the newly filtered data range.
@@ -328,6 +332,21 @@ async function renderChartScene(symbol, sinceYear) {
       lineColor: "rgba(148, 163, 184, 0.32)",
       tickColor: "rgba(148, 163, 184, 0.32)",
       labels: { style: { color: "#8a90a3" } },
+      plotLines: startTimestamp == null ? [] : [{
+        value: startTimestamp,
+        color: "rgba(245, 246, 250, 0.55)",
+        dashStyle: "ShortDash",
+        width: 1,
+        zIndex: 4,
+        label: {
+          text: startLabel,
+          align: "left",
+          rotation: 0,
+          x: 6,
+          y: 14,
+          style: { color: "#f5f6fa", fontSize: "12px", fontWeight: "700" },
+        },
+      }],
     },
     yAxis: {
       title: { text: "Cumulative return (%)", style: { color: "#8a90a3" } },

@@ -107,6 +107,8 @@ for (const point of aligned) {
     }
 }
 
+monthEndPoints.sort((a, b) => a.date.localeCompare(b.date));
+
 const monthlyRows = monthEndPoints.map((point, index) => {
     const previous = index === 0 ? aligned[0] : monthEndPoints[index - 1];
     return buildReturnRow(point, previous);
@@ -199,6 +201,7 @@ async function appendLatestMonthlyPoint() {
     const currentMonthIndex = monthEndPoints.findIndex((point) => point.date.slice(0, 7) === latestDate.slice(0, 7));
     if (currentMonthIndex >= 0) monthEndPoints[currentMonthIndex] = updatedPoint;
     else monthEndPoints.push(updatedPoint);
+    monthEndPoints.sort((a, b) => a.date.localeCompare(b.date));
 
     monthlyRows.splice(0, monthlyRows.length, ...monthEndPoints.map((point, index) => {
         const previous = index === 0 ? aligned[0] : monthEndPoints[index - 1];
