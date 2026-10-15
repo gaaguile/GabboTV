@@ -112,7 +112,7 @@ async function refresh() {
 refresh();
 setInterval(refresh, REFRESH_MS);
 
-// ── Scene cycling: market board, then 6 ETF weekly-net-return charts ────────
+// ── Scene cycling: market board, then 7 ETF weekly-net-return charts ────────
 
 const ETF_CHARTS_URL = "/data/etf-charts.json";
 const CHART_REFRESH_MS = 60 * 1000;
@@ -125,6 +125,7 @@ const SCENES = [
   { type: "chart", symbol: "IYW", sinceYear: 1997, durationMs: 15000 },
   { type: "chart", symbol: "IYW", sinceYear: 2010, durationMs: 15000 },
   { type: "chart", symbol: "IYW", sinceYear: 2023, durationMs: 15000 },
+  { type: "chart", symbol: "WQTM", sinceYear: 2025, rangeLabel: "SINCE INCEPTION", durationMs: 15000 },
 ];
 
 let etfCharts = {};
@@ -268,10 +269,10 @@ async function fetchLiveFinalChartPoint(symbol, sinceYear) {
   }
 }
 
-async function renderChartScene(symbol, sinceYear) {
+async function renderChartScene(symbol, sinceYear, rangeLabel = `SINCE ${sinceYear}`) {
   const chart = etfCharts[symbol];
   document.getElementById("chart-title").textContent =
-    `${symbol} \u2014 LIVE WEEKLY NET RETURN SINCE ${sinceYear}`;
+    `${symbol} \u2014 LIVE WEEKLY NET RETURN ${rangeLabel}`;
 
   if (!chart) return;
 
@@ -374,7 +375,7 @@ function showScene(scene) {
   document.getElementById("scene-chart").hidden = scene.type !== "chart";
   sceneDeadline = Date.now() + scene.durationMs;
   updateSceneCountdown();
-  if (scene.type === "chart") renderChartScene(scene.symbol, scene.sinceYear);
+  if (scene.type === "chart") renderChartScene(scene.symbol, scene.sinceYear, scene.rangeLabel);
 }
 
 function updateSceneCountdown() {
