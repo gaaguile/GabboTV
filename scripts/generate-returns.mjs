@@ -4,11 +4,13 @@ import { fileURLToPath } from "node:url";
 
 const rootDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const chartPath = join(rootDir, "data", "etf-charts.json");
+const manualFxPath = join(rootDir, "data", "usdclp-manual-monthly.json");
 const outputDir = join(rootDir, "data", "returns");
 const headers = ["Date", "IVV", "IYW", "IVV (CLP adjusted)", "IYW (CLP adjusted)", "USDCLP"];
 
 const chartData = JSON.parse(readFileSync(chartPath, "utf8"));
 const charts = chartData.charts ?? {};
+const manualFxReturns = JSON.parse(readFileSync(manualFxPath, "utf8")).monthlyReturns ?? {};
 
 function getSeries(symbol) {
     const chart = charts[symbol];
@@ -93,6 +95,24 @@ function buildReturnRow(current, previous) {
         formatValue(percentChange(current.iyw.clp, previous.iyw.clp)),
         formatValue(percentChange(current.ivv.fx, previous.ivv.fx)),
     ];
+}
+
+function applyManualFxReturns(rows) {
+    return rows.map((row) => {
+        const fxReturn = manualFxReturns[row[0].slice(0, 7)];
+        if (!Number.isFinite(fxReturn)) return row;
+
+        const ivvReturn = Number(row[1]);
+        const iywReturn = Number(row[2]);
+        return [
+            row[0],
+            row[1],
+            row[2],
+            formatValue(((1 + ivvReturn / 100) * (1 + fxReturn / 100) - 1) * 100),
+            formatValue(((1 + iywReturn / 100) * (1 + fxReturn / 100) - 1) * 100),
+            formatValue(fxReturn),
+        ];
+    });
 }
 
 const weeklyRows = aligned.slice(1).map((point, index) => buildReturnRow(point, aligned[index]));
@@ -234,6 +254,6 @@ for (const period of ["weekly", "monthly"]) {
     }
 }
 writePeriodFiles("weekly", weeklyRows);
-writePeriodFiles("monthly", monthlyRows);
+writePeriodFiles("monthly", applyManualFxReturns(monthlyRows));
 
 console.log(`Wrote ${weeklyRows.length} weekly rows and ${monthlyRows.length} monthly rows to ${outputDir}/{weekly,monthly}`);
