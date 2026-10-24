@@ -42,3 +42,19 @@ Application to report on a TV or monitor screen market alerts with professional 
 ### Prompt sugerido para pegar junto con este PRD:
 
 > Before writing any code, propose an implementation plan based on this PRD (files to create/modify, key architecture decisions). Wait for my confirmation before touching any code.
+
+
+
+Area	                Technology / choice
+Backend language	    TypeScript, compiled to JavaScript
+Runtime	                Node.js
+Frontend	            HTML, CSS, and vanilla JavaScript in the broadcast template
+HTTP server	            Node.js built-in http module; no web framework
+Market data	            Yahoo Finance chart endpoints, fetched directly by the Node app
+Data storage	        Local JSON and CSV files; no database
+Scheduling	            Node-based interval scheduler in Docker, or Windows Task Scheduler for local Windows operation
+Containerization	    Docker and Docker Compose
+Broadcast integration	CasparCG HTML producer and SPX Graphics web source
+Charting	            Highcharts/Highstock, with a vendored Highstock browser library
+Build tooling	        TypeScript compiler (tsc)
+Cloud services	        No Cloudflare integration in the current repository
