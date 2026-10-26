@@ -46,6 +46,7 @@ Application to report on a TV or monitor screen market alerts with professional 
 
 
 Area	                Technology / choice
+
 Backend language	    TypeScript, compiled to JavaScript
 Runtime	                Node.js
 Frontend	            HTML, CSS, and vanilla JavaScript in the broadcast template
@@ -57,4 +58,4 @@ Containerization	    Docker and Docker Compose
 Broadcast integration	CasparCG HTML producer and SPX Graphics web source
 Charting	            Highcharts/Highstock, with a vendored Highstock browser library
 Build tooling	        TypeScript compiler (tsc)
-Cloud services	        No Cloudflare integration in the current repository
+Cloud services	        Cloudflare, if needed according to PRD

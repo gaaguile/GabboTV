@@ -24,7 +24,7 @@ const HISTORY_PATH = join(DATA_DIR, "alert-history.csv");
 const ETF_CHARTS_PATH = join(DATA_DIR, "etf-charts.json");
 
 // Chart scenes cover these tickers since their available history (date-window scenes filter client-side).
-const ETF_CHART_TICKERS = ["IVV", "IYW", "WQTM"];
+const ETF_CHART_TICKERS = ["IVV", "IYW", "WQTM", "QTUM"];
 const ETF_CHARTS_SINCE = "1997-01-01T00:00:00Z";
 const ETF_CHARTS_REFRESH_MS = 0;
 

@@ -9,7 +9,7 @@ const NAME_MAP = {
   KO: "Coca-Cola", MCD: "McDonald's", MMM: "3M", MRK: "Merck", MSFT: "Microsoft", NKE: "Nike",
   NVDA: "Nvidia", PG: "Procter & Gamble", SHW: "Sherwin-Williams", TRV: "Travelers", UNH: "UnitedHealth",
   V: "Visa", WMT: "Walmart", AMZN: "Amazon", GOOGL: "Alphabet", IVV: "S&P 500 ETF", IYW: "Tech ETF",
-  DIA: "Dow Jones ETF", WQTM: "WisdomTree ETF", "USDCLP=X": "USD/CLP",
+  DIA: "Dow Jones ETF", WQTM: "WisdomTree ETF", QTUM: "Quantum ETF", "USDCLP=X": "USD/CLP",
 };
 
 function fmtPrice(v) {
@@ -112,7 +112,7 @@ async function refresh() {
 refresh();
 setInterval(refresh, REFRESH_MS);
 
-// ── Scene cycling: market board, then 7 ETF weekly-net-return charts ────────
+// ── Scene cycling: market board, then ETF weekly-net-return charts ──────────
 
 const ETF_CHARTS_URL = "/data/etf-charts.json";
 const CHART_REFRESH_MS = 60 * 1000;
@@ -126,6 +126,7 @@ const SCENES = [
   { type: "chart", symbol: "IYW", sinceYear: 2010, durationMs: 15000 },
   { type: "chart", symbol: "IYW", sinceYear: 2023, durationMs: 15000 },
   { type: "chart", symbol: "WQTM", sinceYear: 2025, rangeLabel: "SINCE INCEPTION", durationMs: 15000 },
+  { type: "chart", symbol: "QTUM", sinceYear: 2018, rangeLabel: "SINCE INCEPTION", durationMs: 15000 },
 ];
 
 let etfCharts = {};
@@ -318,6 +319,7 @@ async function renderChartScene(symbol, sinceYear, rangeLabel = `SINCE ${sinceYe
   }
 
   chartInstance = Highcharts.stockChart("chart-container", {
+    accessibility: { enabled: false },
     chart: { backgroundColor: "transparent" },
     rangeSelector: { enabled: false },
     navigator: { enabled: false },
